@@ -369,17 +369,14 @@
             "Table Tennis": { price: 10, tax: 1.5, location: "Muscat, Oman", phone: "+968 1234 5678", imageClass: "tabletennis-bg", address: "Al Khuwair, Muscat" }
         };
 
-        // Logout function
-        // Logout function
-        document.getElementById('logoutBtn').addEventListener('click', (e) => {
-            e.preventDefault();
-            auth.signOut().then(() => {
-                const basePath = window.location.pathname.split('/').slice(0, -1).join('/');
-                window.location.href = basePath + '/login.html';  // ✅ الكود الجديد
-            }).catch((error) => {
-                console.error('Logout error:', error);
-            });
-        });
+document.getElementById('logoutBtn').addEventListener('click', (e) => {
+    e.preventDefault();
+    auth.signOut().then(() => {
+        window.location.href = './index.html';  // ✅
+    }).catch((error) => {
+        console.error('خطأ في تسجيل الخروج:', error);
+    });
+});
 
         // Check if user is logged in
         auth.onAuthStateChanged((user) => {
