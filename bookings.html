@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings - Oman Multi-Sport Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #002001;
+            color: white;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 50px;
+            background: transparent;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #a8ff78, #11998e);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 35px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 16px;
+            transition: 0.2s;
+            padding-bottom: 5px;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav-links a:hover {
+            color: #38ef7d;
+            border-bottom-color: #38ef7d;
+        }
+
+        .hero-section {
+            min-height: 30vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 8%;
+            background: transparent;
+        }
+
+        .hero-content h1 {
+            font-size: 56px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #a8ff78);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 15px;
+        }
+
+        .hero-content p {
+            font-size: 18px;
+            color: #ddd;
+        }
+
+        .bookings-container {
+            max-width: 1000px;
+            margin: 0 auto 60px;
+            padding: 0 50px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .empty-state p {
+            font-size: 18px;
+            color: #ccc;
+            margin-bottom: 25px;
+        }
+
+        .btn-book-now {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            border: none;
+            color: #002001;
+            font-weight: bold;
+            padding: 12px 30px;
+            border-radius: 40px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: 0.2s;
+        }
+
+        .btn-book-now:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 12px #38ef7d;
+        }
+
+        .bookings-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .booking-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid rgba(56, 239, 125, 0.2);
+            transition: 0.3s;
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+        }
+
+        .booking-card:hover {
+            border-color: #38ef7d;
+        }
+
+        .booking-image {
+            width: 160px;
+            background-size: cover;
+            background-position: center;
+            min-height: 180px;
+        }
+
+        .football-bg {
+            background-image: url('https://images.pexels.com/photos/46798/the-ball-stadion-football-the-pitch-46798.jpeg');
+        }
+
+        .basketball-bg {
+            background-image: url('https://images.pexels.com/photos/1210397/basketball-court-basketball-court-bleachers-1210397.jpeg');
+        }
+
+        .padel-bg {
+            background-image: url('https://images.pexels.com/photos/1624468/sports-tennis-match-competition-racket-1624468.jpeg');
+        }
+
+        .tabletennis-bg {
+            background-image: url('https://images.pexels.com/photos/3763377/table-tennis-player-2021-12-23-21-37-24-utc.jpg');
+        }
+
+        .default-bg {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+        }
+
+        .booking-content {
+            padding: 15px 20px;
+            flex: 1;
+            text-align: left;
+        }
+
+        .booking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+
+        .booking-title {
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, #a8ff78);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .booking-price {
+            font-size: 16px;
+            font-weight: bold;
+            color: #a8ff78;
+        }
+
+        .booking-dates {
+            background: rgba(56, 239, 125, 0.1);
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+            margin: 8px 0;
+            display: inline-block;
+        }
+
+        .booking-location {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #ccc;
+            font-size: 12px;
+            margin: 5px 0;
+            flex-wrap: wrap;
+        }
+
+        .booking-location a {
+            color: #a8ff78;
+            text-decoration: none;
+        }
+
+        .divider {
+            height: 1px;
+            background: rgba(56, 239, 125, 0.2);
+            margin: 10px 0;
+        }
+
+        .price-breakdown {
+            display: flex;
+            justify-content: space-between;
+            margin: 6px 0;
+            font-size: 12px;
+            color: #ccc;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(56, 239, 125, 0.3);
+            font-size: 16px;
+            font-weight: bold;
+            color: #a8ff78;
+        }
+
+        .cashback {
+            background: rgba(168, 255, 120, 0.1);
+            padding: 8px 12px;
+            border-radius: 12px;
+            margin: 10px 0;
+            font-size: 11px;
+            color: #a8ff78;
+        }
+
+        .btn-cancel {
+            background: rgba(231, 76, 60, 0.8);
+            border: none;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-cancel:hover {
+            background: #e74c3c;
+            transform: scale(1.02);
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px;
+            background: #001501;
+            border-top: 1px solid rgba(56, 239, 125, 0.2);
+            font-size: 14px;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 20px;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .nav-links {
+                gap: 20px;
+            }
+
+            .hero-content h1 {
+                font-size: 36px;
+            }
+
+            .bookings-container {
+                padding: 0 20px;
+            }
+
+            .booking-card {
+                flex-direction: column;
+            }
+
+            .booking-image {
+                width: 100%;
+                height: 140px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="logo">Oman Multi-Sport Hub</div>
+        <div class="nav-links">
+            <a href="home.html">Home</a>
+            <a href="booking.html">Book a Court</a>
+            <a href="bookings.html">My Bookings</a>
+            <a href="#" id="logoutBtn">Logout</a>
+        </div>
+    </nav>
+
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1>My Bookings</h1>
+            <p>View and manage all your upcoming reservations</p>
+        </div>
+    </section>
+
+    <div class="bookings-container">
+        <div id="bookingsList" class="bookings-grid">
+            <div class="empty-state">
+                <p>Loading bookings...</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>📍 Oman Multi-Sport Hub | 📧 info@omsport.om | 📞 +968 1234 5678</p>
+        <p style="margin-top: 10px;">Play better, train smarter, win confidently.</p>
+    </footer>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyC5ZiejgIHjAca8ZkhVH61xevHh7rkzd0o",
+            authDomain: "oman-sport-hub.firebaseapp.com",
+            projectId: "oman-sport-hub",
+            storageBucket: "oman-sport-hub.firebasestorage.app",
+            messagingSenderId: "733376705060",
+            appId: "1:733376705060:web:8dd4f5d5a2a490e34cdeb1",
+            measurementId: "G-XE9NHKCJYR"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        const facilityData = {
+            "Football": { price: 20, tax: 3, location: "Muscat, Oman", phone: "+968 1234 5678", imageClass: "football-bg", address: "Al-Amrat, Muscat" },
+            "Basketball": { price: 15, tax: 2.5, location: "Muscat, Oman", phone: "+968 1234 5678", imageClass: "basketball-bg", address: "Bousher, Muscat" },
+            "Padel": { price: 25, tax: 4, location: "Sohar, Oman", phone: "+968 1234 5678", imageClass: "padel-bg", address: "Sohar Industrial Area" },
+            "Table Tennis": { price: 10, tax: 1.5, location: "Muscat, Oman", phone: "+968 1234 5678", imageClass: "tabletennis-bg", address: "Al Khuwair, Muscat" }
+        };
+
+        // Logout function
+        // Logout function
+        document.getElementById('logoutBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            auth.signOut().then(() => {
+                const basePath = window.location.pathname.split('/').slice(0, -1).join('/');
+                window.location.href = basePath + '/login.html';  // ✅ الكود الجديد
+            }).catch((error) => {
+                console.error('Logout error:', error);
+            });
+        });
+
+        // Check if user is logged in
+        auth.onAuthStateChanged((user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+            } else {
+                loadBookings();
+            }
+        });
+
+        async function loadBookings() {
+            const container = document.getElementById('bookingsList');
+
+            try {
+                // جلب جميع الحجوزات (بدون فلتر userId)
+                const snapshot = await db.collection('bookings')
+                    .orderBy('createdAt', 'desc')
+                    .get();
+
+                if (snapshot.empty) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <p>📭 No bookings yet</p>
+                            <a href="booking.html" class="btn-book-now">Book a Court →</a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let bookingsHTML = '';
+                snapshot.forEach(doc => {
+                    const booking = doc.data();
+                    const facility = facilityData[booking.facility] || { price: booking.price || 20, tax: 3, location: "Oman", phone: "+968 1234 5678", imageClass: "default-bg", address: "Oman" };
+                    const subtotal = facility.price;
+                    const tax = facility.tax;
+                    const total = subtotal + tax;
+                    const cashback = (total * 0.05).toFixed(2);
+                    const cityName = booking.city || "Muscat";
+
+                    bookingsHTML += `
+                        <div class="booking-card" data-id="${doc.id}">
+                            <div class="booking-image ${facility.imageClass}"></div>
+                            <div class="booking-content">
+                                <div class="booking-header">
+                                    <div class="booking-title">${booking.facility} Court</div>
+                                    <div class="booking-price">${facility.price} OMR <span style="font-size: 10px;">/ hour</span></div>
+                                </div>
+                                <div class="booking-dates">
+                                    📅 ${booking.date || 'Date not set'} | ⏰ ${booking.time || 'Time not set'}
+                                </div>
+                                <div class="booking-location">
+                                    📍 ${cityName}, Oman | ${facility.address}
+                                </div>
+                                <div class="booking-location">
+                                    📞 ${facility.phone} | <a href="#">Show in Maps →</a>
+                                </div>
+                                <div class="divider"></div>
+                                <div class="price-breakdown">
+                                    <span>1 Hour · 1 Court</span>
+                                    <span>${facility.price} OMR</span>
+                                </div>
+                                <div class="price-breakdown">
+                                    <span>Taxes and Fees</span>
+                                    <span>${facility.tax} OMR</span>
+                                </div>
+                                <div class="total-row">
+                                    <span>Total</span>
+                                    <span>${total} OMR</span>
+                                </div>
+                                <div class="cashback">
+                                    ⚠️ You'll get ${cashback} OMR Cash Back<br>
+                                    <small>Cash back will be available after your booking is completed</small>
+                                </div>
+                                <button class="btn-cancel" onclick="cancelBooking('${doc.id}')">Cancel Booking</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = bookingsHTML;
+            } catch (error) {
+                console.error("Error loading bookings: ", error);
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>📭 No bookings yet</p>
+                        <a href="booking.html" class="btn-book-now">Book a Court →</a>
+                    </div>
+                `;
+            }
+        }
+
+        async function cancelBooking(bookingId) {
+            if (confirm('Are you sure you want to cancel this booking?')) {
+                try {
+                    await db.collection('bookings').doc(bookingId).delete();
+                    alert('❌ Booking cancelled successfully!');
+                    location.reload();
+                } catch (error) {
+                    console.error("Error cancelling booking: ", error);
+                    alert('❌ Error cancelling booking. Please try again.');
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book a Court - Oman Multi-Sport Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #002001;
+            color: white;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 50px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100;
+            background: transparent;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #a8ff78, #11998e);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 35px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 16px;
+            transition: 0.2s;
+            padding-bottom: 5px;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav-links a:hover {
+            color: #38ef7d;
+            border-bottom-color: #38ef7d;
+        }
+
+        .hero-slide {
+            min-height: 100vh;
+            background-image: url('cck.png');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 8%;
+            position: relative;
+        }
+
+        .hero-slide::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 32, 1, 0.55);
+            z-index: 1;
+        }
+
+        .hero-slide::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 250px;
+            background: linear-gradient(to top, #002001 60%, rgba(0, 32, 1, 0) 100%);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .hero-content h1 {
+            font-size: 56px;
+            font-weight: 800;
+            line-height: 1.2;
+            background: linear-gradient(135deg, #fff, #a8ff78);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .hero-content p {
+            font-size: 18px;
+            color: #ddd;
+            margin-bottom: 0;
+            line-height: 1.6;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .sports-slide {
+            min-height: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 50px 100px 50px;
+            background: #002001;
+            position: relative;
+            margin-top: -100px;
+            z-index: 3;
+        }
+
+        .sports-grid {
+            width: 100%;
+            max-width: 1400px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+        }
+
+        .sport-card {
+            background: rgba(56, 239, 125, 0.05);
+            border: 1px solid rgba(56, 239, 125, 0.2);
+            border-radius: 20px;
+            padding: 30px 20px;
+            text-align: center;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .sport-card:hover {
+            transform: translateY(-8px);
+            border-color: #38ef7d;
+            background: rgba(56, 239, 125, 0.1);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .sport-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #fff, #a8ff78);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .sport-description {
+            font-size: 13px;
+            color: #aaa;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .btn-book {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            border: none;
+            color: #002001;
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-size: 14px;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.2s;
+        }
+
+        .btn-book:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 12px #38ef7d;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px;
+            background: #001501;
+            border-top: 1px solid rgba(56, 239, 125, 0.2);
+            font-size: 14px;
+        }
+
+        .booking-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 32, 1, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.2s;
+        }
+
+        .booking-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .booking-card {
+            background: rgba(56, 239, 125, 0.15);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(56, 239, 125, 0.5);
+            border-radius: 30px;
+            padding: 30px;
+            width: 550px;
+            max-width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            text-align: center;
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .booking-card h3 {
+            font-size: 26px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #a8ff78, #38ef7d);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .booking-card input,
+        .booking-card select {
+            width: 100%;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border-radius: 50px;
+            border: none;
+            background: rgba(255, 255, 255, 0.95);
+            font-size: 16px;
+            font-family: 'Poppins', sans-serif;
+            color: #333;
+        }
+
+        .booking-card p {
+            margin: 15px 0;
+            font-size: 18px;
+            font-weight: bold;
+            color: #a8ff78;
+            text-shadow: 0 1px 1px black;
+        }
+
+        .courts-list {
+            margin: 15px 0;
+            text-align: left;
+        }
+
+        .courts-list-title {
+            font-size: 14px;
+            color: #a8ff78;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .court-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(56, 239, 125, 0.2);
+        }
+
+        .court-item.unavailable {
+            opacity: 0.6;
+            border-color: rgba(231, 76, 60, 0.3);
+        }
+
+        .court-name {
+            font-weight: bold;
+            color: white;
+            font-size: 14px;
+        }
+
+        .court-details {
+            font-size: 11px;
+            color: #ccc;
+            margin-top: 5px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .court-status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 10px;
+        }
+
+        .status-available {
+            background: rgba(56, 239, 125, 0.2);
+            color: #38ef7d;
+        }
+
+        .status-unavailable {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+
+        .btn-group-court {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .select-court-btn,
+        .map-btn {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            border: none;
+            color: #002001;
+            font-weight: bold;
+            padding: 8px 12px;
+            border-radius: 30px;
+            font-size: 11px;
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+            text-decoration: none;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            min-height: 42px;
+            width: 100%;
+            line-height: 1;
+        }
+
+        .select-court-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .map-btn {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: #002001;
+        }
+
+        .selected-court-info {
+            background: rgba(56, 239, 125, 0.15);
+            padding: 12px;
+            border-radius: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .booking-card button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            border: none;
+            border-radius: 50px;
+            color: #002001;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .booking-card button:hover,
+        .select-court-btn:hover,
+        .map-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 12px #38ef7d;
+        }
+
+        .booking-card .close-btn {
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            margin-top: 8px;
+        }
+
+        @media (max-width: 1000px) {
+            .sports-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 20px;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .nav-links {
+                gap: 20px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .hero-content h1 {
+                font-size: 36px;
+            }
+
+            .hero-content p {
+                font-size: 16px;
+            }
+
+            .hero-slide {
+                padding: 0 5%;
+            }
+
+            .sports-slide {
+                padding: 0 25px 60px 25px;
+                margin-top: -60px;
+            }
+
+            .sports-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .btn-group-court {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="logo">Oman Multi-Sport Hub</div>
+        <div class="nav-links">
+            <a href="home.html">Home</a>
+            <a href="booking.html">Book a Court</a>
+            <a href="bookings.html">My Bookings</a>
+            <a href="#" id="logoutBtn">Logout</a>
+        </div>
+    </nav>
+
+    <section class="hero-slide">
+        <div class="hero-content">
+            <h1>Your Next Match Starts Here.</h1>
+            <p>Find the best sports facilities across Oman, check real-time availability, compare venues, and secure
+                your booking in seconds.</p>
+        </div>
+    </section>
+
+    <section class="sports-slide">
+        <div class="sports-grid">
+            <div class="sport-card" data-sport="Football" data-price="20">
+                <div class="sport-name">Football</div>
+                <div class="sport-description">Professional football courts. Starting 20 OMR/hour.</div>
+                <button class="btn-book">Book Now</button>
+            </div>
+            <div class="sport-card" data-sport="Basketball" data-price="15">
+                <div class="sport-name">Basketball</div>
+                <div class="sport-description">Indoor/outdoor courts. From 15 OMR/hour.</div>
+                <button class="btn-book">Book Now</button>
+            </div>
+            <div class="sport-card" data-sport="Padel" data-price="25">
+                <div class="sport-name">Padel</div>
+                <div class="sport-description">Premium glass courts. From 25 OMR/hour.</div>
+                <button class="btn-book">Book Now</button>
+            </div>
+            <div class="sport-card" data-sport="Table Tennis" data-price="10">
+                <div class="sport-name">Table Tennis</div>
+                <div class="sport-description">Professional tables, racquets available. From 10 OMR/hour.</div>
+                <button class="btn-book">Book Now</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Booking Modal -->
+    <div id="bookingModal" class="booking-overlay">
+        <div class="booking-card">
+            <h3>Complete Your Booking</h3>
+            <input type="text" id="modalFacility" readonly placeholder="Sport">
+            <select id="modalCity" onchange="loadCourtsByCity()">
+                <option value="">-- Select City --</option>
+                <option value="Muscat">Muscat</option>
+                <option value="Salalah">Salalah</option>
+                <option value="Sohar">Sohar</option>
+                <option value="Nizwa">Nizwa</option>
+                <option value="Sur">Sur</option>
+                <option value="Ibri">Ibri</option>
+                <option value="Rustaq">Rustaq</option>
+                <option value="Barka">Barka</option>
+            </select>
+
+            <div id="courtsListContainer" class="courts-list" style="display: none;">
+                <div class="courts-list-title">Available Courts in <span id="selectedCityName"></span></div>
+                <div id="courtsList"></div>
+            </div>
+
+            <div id="selectedCourtInfo" class="selected-court-info" style="display: none;"></div>
+
+            <input type="date" id="bookingDate" required>
+            <select id="bookingTime">
+                <option value="08:00">08:00 AM</option>
+                <option value="10:00">10:00 AM</option>
+                <option value="14:00">14:00 PM</option>
+                <option value="16:00">16:00 PM</option>
+                <option value="18:00">18:00 PM</option>
+                <option value="20:00">20:00 PM</option>
+            </select>
+            <p>Price: <span id="modalPrice">0</span> OMR</p>
+            <button id="confirmBooking">Confirm Booking</button>
+            <button class="close-btn" onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>Oman Multi-Sport Hub | info@omsport.om | +968 1234 5678</p>
+        <p style="margin-top: 10px;">Play better, train smarter, win confidently.</p>
+    </footer>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyC5ZiejgIHjAca8ZkhVH61xevHh7rkzd0o",
+            authDomain: "oman-sport-hub.firebaseapp.com",
+            projectId: "oman-sport-hub",
+            storageBucket: "oman-sport-hub.firebasestorage.app",
+            messagingSenderId: "733376705060",
+            appId: "1:733376705060:web:8dd4f5d5a2a490e34cdeb1",
+            measurementId: "G-XE9NHKCJYR"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let currentSport = '';
+        let currentPrice = 0;
+        let currentSelectedCourt = null;
+
+        // Logout - تم التعديل هنا فقط
+        document.getElementById('logoutBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            const basePath = window.location.pathname.split('/').slice(0, -1).join('/');
+            window.location.href = basePath + '/login.html';  // ✅ الكود الجديد
+        });
+
+        // Check login
+        auth.onAuthStateChanged((user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Old booking button logic
+        document.querySelectorAll('.sport-card').forEach(card => {
+            const btn = card.querySelector('.btn-book');
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                currentSport = card.getAttribute('data-sport');
+                currentPrice = parseInt(card.getAttribute('data-price'));
+                document.getElementById('modalFacility').value = currentSport;
+                document.getElementById('modalPrice').innerText = currentPrice;
+                document.getElementById('bookingModal').classList.add('active');
+                document.getElementById('courtsListContainer').style.display = 'none';
+                document.getElementById('selectedCourtInfo').style.display = 'none';
+                document.getElementById('modalCity').value = '';
+                currentSelectedCourt = null;
+            });
+        });
+
+        // Real courts data with actual locations in Oman
+        const realCourtsData = {
+            "Muscat": [
+                { name: "Sultan Qaboos Sports Complex", sport: "Football, Basketball", available: true, nextAvailable: "", price: 20, lat: 23.588, lng: 58.408, address: "Bausher, Muscat" },
+                { name: "Al Amrat Football Field", sport: "Football", available: true, nextAvailable: "", price: 18, lat: 23.473, lng: 58.503, address: "Al Amrat, Muscat" },
+                { name: "Bousher Indoor Basketball Court", sport: "Basketball", available: false, nextAvailable: "2026-06-04 16:00", price: 15, lat: 23.588, lng: 58.408, address: "Bousher, Muscat" },
+                { name: "Padel Zone Al Mouj", sport: "Padel", available: true, nextAvailable: "", price: 25, lat: 23.623, lng: 58.456, address: "Al Mouj, Muscat" },
+                { name: "Oman Table Tennis Center", sport: "Table Tennis", available: true, nextAvailable: "", price: 10, lat: 23.586, lng: 58.385, address: "Al Khuwair, Muscat" },
+                { name: "Seeb Sports Stadium", sport: "Football", available: false, nextAvailable: "2026-06-05 20:00", price: 22, lat: 23.672, lng: 58.191, address: "Seeb, Muscat" },
+                { name: "Padel Pro Azaiba", sport: "Padel", available: true, nextAvailable: "", price: 28, lat: 23.596, lng: 58.364, address: "Azaiba, Muscat" },
+            ],
+            "Salalah": [
+                { name: "Salalah Sports Complex", sport: "Football, Basketball", available: true, nextAvailable: "", price: 20, lat: 17.016, lng: 54.093, address: "Salalah" },
+                { name: "Al Saada Stadium", sport: "Football", available: false, nextAvailable: "2026-06-10 17:00", price: 25, lat: 17.032, lng: 54.102, address: "Al Saada, Salalah" },
+                { name: "Dahariz Padel Court", sport: "Padel", available: true, nextAvailable: "", price: 22, lat: 17.003, lng: 54.132, address: "Dahariz, Salalah" },
+            ],
+            "Sohar": [
+                { name: "Sohar Sports Complex", sport: "Football", available: true, nextAvailable: "", price: 18, lat: 24.343, lng: 56.726, address: "Sohar" },
+                { name: "Sohar Padel Academy", sport: "Padel", available: false, nextAvailable: "2026-06-07 18:00", price: 24, lat: 24.361, lng: 56.731, address: "Sohar Industrial Area" },
+            ],
+            "Nizwa": [
+                { name: "Nizwa Sports Complex", sport: "Football", available: true, nextAvailable: "", price: 15, lat: 22.933, lng: 57.533, address: "Nizwa" },
+            ],
+            "Barka": [
+                { name: "Barka Sports Ground", sport: "Football", available: true, nextAvailable: "", price: 16, lat: 23.678, lng: 57.898, address: "Barka" },
+                { name: "Barka Padel Court", sport: "Padel", available: false, nextAvailable: "2026-06-08 19:00", price: 20, lat: 23.670, lng: 57.890, address: "Barka" },
+            ],
+            "Sur": [
+                { name: "Sur Sports Complex", sport: "Football", available: true, nextAvailable: "", price: 17, lat: 22.566, lng: 59.528, address: "Sur" },
+            ],
+            "Ibri": [
+                { name: "Ibri Football Field", sport: "Football", available: true, nextAvailable: "", price: 14, lat: 23.226, lng: 56.519, address: "Ibri" },
+            ],
+            "Rustaq": [
+                { name: "Rustaq Sports Complex", sport: "Football", available: false, nextAvailable: "2026-06-09 16:00", price: 16, lat: 23.390, lng: 57.424, address: "Rustaq" },
+            ]
+        };
+
+        async function loadCourtsByCity() {
+            const city = document.getElementById('modalCity').value;
+            const sport = document.getElementById('modalFacility').value;
+
+            if (!city) {
+                document.getElementById('courtsListContainer').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('selectedCityName').innerText = city;
+            const courts = realCourtsData[city] || [];
+
+            const filteredCourts = courts.filter(court =>
+                court.sport.toLowerCase().includes(sport.toLowerCase())
+            );
+
+            const container = document.getElementById('courtsList');
+            const courtsContainer = document.getElementById('courtsListContainer');
+
+            if (filteredCourts.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 15px; color: #ccc;">No courts available in this city for selected sport.</div>';
+                courtsContainer.style.display = 'block';
+                return;
+            }
+
+            let html = '';
+            filteredCourts.forEach((court) => {
+                const statusClass = court.available ? 'status-available' : 'status-unavailable';
+                const statusText = court.available ? 'Available' : 'Unavailable';
+                const mapsUrl = `https://www.google.com/maps?q=${court.lat},${court.lng}`;
+
+                html += `
+                    <div class="court-item ${!court.available ? 'unavailable' : ''}">
+                        <div class="court-name">${court.name}</div>
+                        <div class="court-details">
+                            <span>📍 ${court.address}</span>
+                        </div>
+                        <div class="court-details">
+                            <span class="court-status ${statusClass}">${statusText}</span>
+                            <span>💰 ${court.price} OMR/hour</span>
+                            <span>⚽ ${court.sport}</span>
+                        </div>
+                        ${!court.available ? `<div class="court-details">🕐 Available from: ${court.nextAvailable}</div>` : ''}
+                        <div class="btn-group-court">
+                            <button class="select-court-btn" ${!court.available ? 'disabled' : ''} 
+                                onclick="selectCourt('${court.name.replace(/'/g, "\\'")}', ${court.price}, '${court.address.replace(/'/g, "\\'")}')">
+                                Select This Court
+                            </button>
+                            <button class="map-btn" onclick="window.open('${mapsUrl}', '_blank')">
+    Show on Map
+</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+            courtsContainer.style.display = 'block';
+        }
+
+        function selectCourt(courtName, price, address) {
+            currentSelectedCourt = courtName;
+            currentPrice = price;
+            document.getElementById('modalPrice').innerText = price;
+
+            document.getElementById('courtsListContainer').style.display = 'none';
+            const selectedInfo = document.getElementById('selectedCourtInfo');
+            selectedInfo.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <strong>Selected Court:</strong> ${courtName}<br>
+                        📍 ${address}<br>
+                        💰 ${price} OMR/hour
+                    </div>
+                    <button onclick="cancelCourtSelection()" style="background: rgba(231,76,60,0.2); border: 1px solid #e74c3c; color: #e74c3c; padding: 8px 16px; border-radius: 30px; cursor: pointer;">Cancel Selection</button>
+                </div>
+            `;
+            selectedInfo.style.display = 'block';
+        }
+
+        function cancelCourtSelection() {
+            currentSelectedCourt = null;
+            currentPrice = parseInt(document.getElementById('modalFacility').getAttribute('data-price') || 0);
+            document.getElementById('modalPrice').innerText = currentPrice;
+            document.getElementById('selectedCourtInfo').style.display = 'none';
+            document.getElementById('courtsListContainer').style.display = 'block';
+            loadCourtsByCity();
+        }
+
+        document.getElementById('confirmBooking').addEventListener('click', async () => {
+            const user = auth.currentUser;
+            if (!user) {
+                alert('Please login first');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const sport = document.getElementById('modalFacility').value;
+            const city = document.getElementById('modalCity').value;
+            const date = document.getElementById('bookingDate').value;
+            const time = document.getElementById('bookingTime').value;
+            const selectedCourt = currentSelectedCourt;
+
+            if (!city) {
+                alert('Please select a city');
+                return;
+            }
+            if (!selectedCourt) {
+                alert('Please select a court from the list');
+                return;
+            }
+            if (!date) {
+                alert('Please select a date');
+                return;
+            }
+
+            const booking = {
+                userId: user.uid,
+                userEmail: user.email,
+                facility: selectedCourt,
+                sport: sport,
+                city: city,
+                date: date,
+                time: time,
+                price: currentPrice,
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                await db.collection('bookings').add(booking);
+                alert(`Booking confirmed for ${selectedCourt} in ${city} on ${date} at ${time} - ${currentPrice} OMR`);
+                closeModal();
+            } catch (error) {
+                console.error("Error adding booking: ", error);
+                alert('Error saving booking. Please try again.');
+            }
+        });
+
+        function closeModal() {
+            document.getElementById('bookingModal').classList.remove('active');
+            document.getElementById('bookingDate').value = '';
+            document.getElementById('modalCity').value = '';
+            document.getElementById('courtsListContainer').style.display = 'none';
+            document.getElementById('selectedCourtInfo').style.display = 'none';
+            currentSelectedCourt = null;
+        }
+
+        document.getElementById('bookingModal').addEventListener('click', function (e) {
+            if (e.target === this) closeModal();
+        });
+    </script>
+
+</body>
+
+</html>

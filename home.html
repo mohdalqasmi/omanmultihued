@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Oman Multi-Sport Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #002001;
+            color: white;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 50px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100;
+            background: transparent;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #a8ff78, #11998e);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 35px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 16px;
+            transition: 0.2s;
+            padding-bottom: 5px;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav-links a:hover {
+            color: #38ef7d;
+            border-bottom-color: #38ef7d;
+        }
+
+        .hero-slide {
+            min-height: 100vh;
+            background-image: url('edd.jpg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            padding: 0 8%;
+            position: relative;
+        }
+
+        .hero-slide::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 32, 1, 0.65);
+            z-index: 1;
+        }
+
+        .hero-slide::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: linear-gradient(to top, #002001 50%, rgba(0, 32, 1, 0) 100%);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 60vh;
+        }
+
+        .hero-content h1 {
+            font-size: 56px;
+            font-weight: 800;
+            line-height: 1.2;
+            background: linear-gradient(135deg, #fff, #a8ff78);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 30px;
+        }
+
+        .hero-content p {
+            font-size: 16px;
+            color: #ddd;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            max-width: 500px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .btn-hero {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            padding: 12px 32px;
+            border-radius: 50px;
+            color: #002001;
+            font-weight: bold;
+            text-decoration: none;
+            transition: 0.2s;
+            display: inline-block;
+        }
+
+        .btn-hero-outline {
+            background: transparent;
+            border: 2px solid #38ef7d;
+            padding: 12px 32px;
+            border-radius: 50px;
+            color: #38ef7d;
+            font-weight: bold;
+            text-decoration: none;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .btn-hero:hover,
+        .btn-hero-outline:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 12px #38ef7d;
+        }
+
+        /* Page 2 - How to Book */
+        .how-to-slide {
+            min-height: auto;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            padding: 40px 50px 100px 50px;
+            gap: 60px;
+            flex-wrap: wrap;
+            background: #002001;
+            position: relative;
+            margin-top: -10px;
+            z-index: 1;
+        }
+
+        .left-text {
+            flex: 1;
+            min-width: 280px;
+        }
+
+        .left-text p {
+            font-size: 16px;
+            color: #ccc;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .how-title {
+            font-size: 42px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
+
+        .how-title .line1 {
+            background: linear-gradient(135deg, #fff, #a8ff78);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .how-title .line2 {
+            background: linear-gradient(135deg, #a8ff78, #11998e);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: 38px;
+        }
+
+        .bottom-note {
+            font-size: 14px;
+            color: #a8ff78;
+            margin-top: 20px;
+            font-style: italic;
+        }
+
+        .steps-grid {
+            flex: 1;
+            min-width: 300px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .step-box {
+            background: rgba(56, 239, 125, 0.05);
+            border: 1px solid rgba(56, 239, 125, 0.2);
+            border-radius: 20px;
+            padding: 30px 25px;
+            transition: 0.2s;
+        }
+
+        .step-box:hover {
+            border-color: #38ef7d;
+            background: rgba(56, 239, 125, 0.1);
+        }
+
+        .step-number {
+            font-size: 16px;
+            color: #a8ff78;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .step-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #fff, #a8ff78);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .step-desc {
+            font-size: 14px;
+            color: #aaa;
+            line-height: 1.5;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px;
+            background: #001501;
+            border-top: 1px solid rgba(56, 239, 125, 0.2);
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 20px;
+                flex-direction: column;
+                gap: 10px;
+                position: relative;
+                background: #002001;
+            }
+
+            .nav-links {
+                gap: 20px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .hero-content h1 {
+                font-size: 36px;
+            }
+
+            .hero-slide {
+                padding: 0 5%;
+            }
+
+            .how-to-slide {
+                padding: 30px 25px 60px 25px;
+                flex-direction: column;
+                margin-top: 0px;
+            }
+
+            .steps-grid {
+                grid-template-columns: 1fr;
+                width: 100%;
+            }
+
+            .hero-slide::after {
+                height: 60px;
+            }
+
+            .how-title {
+                font-size: 32px;
+            }
+
+            .how-title .line2 {
+                font-size: 28px;
+            }
+
+            .step-title {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="logo">Oman Multi-Sport Hub</div>
+        <div class="nav-links">
+            <a href="home.html">Home</a>
+            <a href="booking.html">Book a Court</a>
+            <a href="bookings.html">My Bookings</a>
+            <a href="#" id="logoutBtn">Logout</a>
+        </div>
+    </nav>
+
+    <section class="hero-slide">
+        <div class="hero-content">
+            <h1>Play Smarter.<br>Improve Faster.</h1>
+            <p>Oman's first AI-powered sports booking platform helps players and coaches find, book, and analyze every
+                game.</p>
+            <div class="hero-buttons">
+                <a href="booking.html" class="btn-hero">Explore Facilities →</a>
+                <button class="btn-hero-outline" onclick="alert('📱 Coming soon to App Store')">App Store</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="how-to-slide">
+        <div class="left-text">
+            <p>Oman Multi-Sport Hub is an innovative platform for players and coaches that combines easy booking,
+                real-time availability, and instant confirmation to make playing sports more accessible and organized.
+            </p>
+            <div class="how-title">
+                <div class="line1">How to Book</div>
+                <div class="line2">Step by Step</div>
+            </div>
+            <div class="bottom-note">📌 Plan your next session. Track your progress. Improve over time.</div>
+        </div>
+        <div class="steps-grid">
+            <div class="step-box">
+                <div class="step-number">Step 1</div>
+                <div class="step-title">Search for a Facility</div>
+                <div class="step-desc">Find available courts by sport or location.</div>
+            </div>
+            <div class="step-box">
+                <div class="step-number">Step 2</div>
+                <div class="step-title">Select Date & Time</div>
+                <div class="step-desc">Choose your preferred time slot.</div>
+            </div>
+            <div class="step-box">
+                <div class="step-number">Step 3</div>
+                <div class="step-title">Confirm Booking</div>
+                <div class="step-desc">Review details and confirm instantly.</div>
+            </div>
+            <div class="step-box">
+                <div class="step-number">Step 4</div>
+                <div class="step-title">Show & Play</div>
+                <div class="step-desc">Get confirmation and enjoy your game.</div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>📍 Oman Multi-Sport Hub | 📧 info@omsport.om | 📞 +968 1234 5678</p>
+        <p style="margin-top: 10px;">Play better, train smarter, win confidently.</p>
+    </footer>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC5ZiejgIHjAca8ZkhVH61xevHh7rkzd0o",
+            authDomain: "oman-sport-hub.firebaseapp.com",
+            projectId: "oman-sport-hub",
+            storageBucket: "oman-sport-hub.firebasestorage.app",
+            messagingSenderId: "733376705060",
+            appId: "1:733376705060:web:8dd4f5d5a2a490e34cdeb1",
+            measurementId: "G-XE9NHKCJYR"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // Check if user is logged in
+        auth.onAuthStateChanged((user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Logout function
+        document.getElementById('logoutBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            auth.signOut().then(() => {
+                const basePath = window.location.pathname.split('/').slice(0, -1).join('/');
+                window.location.href = basePath + '/login.html';  // ✅ الكود الجديد
+            }).catch((error) => {
+                console.error('Logout error:', error);
+            });
+        });
+    </script>
+
+</body>
+
+</html>

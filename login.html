@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Oman Multi-Sport Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-image: url('lol.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding-left: 8%;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 32, 1, 0.65);
+            z-index: -1;
+        }
+
+        .hero-text {
+            max-width: 550px;
+            color: white;
+            text-shadow: 1px 1px 3px black;
+        }
+
+        .hero-text h1 {
+            font-size: 56px;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #fff, #a8ff78);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: none;
+        }
+
+        .hero-text p {
+            font-size: 18px;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 36px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            border-color: transparent;
+            transform: scale(1.03);
+            box-shadow: 0 5px 15px rgba(56, 239, 125, 0.4);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="hero-text">
+        <h1>Unlock Your Tennis,<br>Padel & Football Potential</h1>
+        <p>Elevate your game with expert coaching and personalized programs.<br>Improve your skills, boost confidence,
+            and enjoy the game!</p>
+
+        <div class="btn-group">
+            <button class="btn" id="googleSignIn">Sign in with Google →</button>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC5ZiejgIHjAca8ZkhVH61xevHh7rkzd0o",
+            authDomain: "oman-sport-hub.firebaseapp.com",
+            projectId: "oman-sport-hub",
+            storageBucket: "oman-sport-hub.firebasestorage.app",
+            messagingSenderId: "733376705060",
+            appId: "1:733376705060:web:8dd4f5d5a2a490e34cdeb1",
+            measurementId: "G-XE9NHKCJYR"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const provider = new firebase.auth.GoogleAuthProvider();
+
+        // Auto redirect if logged in
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                window.location.href = 'home.html';
+            }
+        });
+
+        // Google Sign In (WITH FIX)
+        document.getElementById('googleSignIn').addEventListener('click', () => {
+            auth.signInWithPopup(provider)
+                .then((result) => {
+                    window.location.href = 'home.html';
+                })
+                .catch((error) => {
+                    console.log("Firebase Error:", error.code, error.message);
+
+                    if (error.code === 'auth/unauthorized-domain') {
+                        alert('ضيف رابط GitHub Pages داخل Firebase Authorized Domains');
+                    } else if (error.code === 'auth/popup-closed-by-user') {
+                        alert('قفلت النافذة قبل ما تكمل تسجيل الدخول');
+                    } else {
+                        alert('Login failed. Check Firebase setup');
+                    }
+                });
+        });
+    </script>
+</body>
+
+</html>
