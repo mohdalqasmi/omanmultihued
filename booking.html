@@ -297,24 +297,35 @@
             text-align: center;
         }
 
-        /* تم إزالة المربع من أسماء الملاعب */
         .court-item {
-            background: transparent;
-            border: none;
-            border-radius: 0;
-            padding: 15px 0;
-            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 15px;
             transition: 0.2s;
+            border: 1px solid rgba(56, 239, 125, 0.1);
+        }
+
+        .court-item:hover {
+            border-color: #38ef7d;
         }
 
         .court-item.unavailable {
             opacity: 0.6;
         }
 
+        .court-image {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+
         .court-name {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 700;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             background: linear-gradient(135deg, #a8ff78, #38ef7d);
             -webkit-background-clip: text;
             background-clip: text;
@@ -323,13 +334,13 @@
         }
 
         .court-details {
-            font-size: 12px;
+            font-size: 11px;
             color: #ccc;
-            margin-top: 4px;
+            margin-top: 5px;
             display: flex;
             justify-content: space-between;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 6px;
         }
 
         .court-status {
@@ -349,10 +360,25 @@
             color: #e74c3c;
         }
 
+        .amenities {
+            font-size: 10px;
+            color: #a8ff78;
+            background: rgba(56, 239, 125, 0.1);
+            padding: 5px 8px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .rating {
+            color: #ffc107;
+            font-weight: bold;
+        }
+
         .btn-group-court {
             display: flex;
             gap: 10px;
-            margin-top: 10px;
+            margin-top: 12px;
         }
 
         .select-court-btn,
@@ -472,6 +498,18 @@
             .btn-group-court {
                 flex-direction: column;
             }
+        }
+
+        .sport-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            min-height: 28px;
+        }
+
+        .sport-description {
+            flex-grow: 1;
         }
     </style>
 </head>
@@ -625,40 +663,25 @@
             });
         });
 
+        // Simplified courts data - only 3 courts per sport in Muscat
         const realCourtsData = {
             "Muscat": [
-                { name: "Sultan Qaboos Sports Complex", sport: "Football, Basketball", available: true, nextAvailable: "", price: 20, lat: 23.588, lng: 58.408, address: "Bausher, Muscat" },
-                { name: "Al Amrat Football Field", sport: "Football", available: true, nextAvailable: "", price: 18, lat: 23.473, lng: 58.503, address: "Al Amrat, Muscat" },
-                { name: "Bousher Indoor Basketball Court", sport: "Basketball", available: false, nextAvailable: "2026-06-04 16:00", price: 15, lat: 23.588, lng: 58.408, address: "Bousher, Muscat" },
-                { name: "Padel Zone Al Mouj", sport: "Padel", available: true, nextAvailable: "", price: 25, lat: 23.623, lng: 58.456, address: "Al Mouj, Muscat" },
-                { name: "Oman Table Tennis Center", sport: "Table Tennis", available: true, nextAvailable: "", price: 10, lat: 23.586, lng: 58.385, address: "Al Khuwair, Muscat" },
-                { name: "Seeb Sports Stadium", sport: "Football", available: false, nextAvailable: "2026-06-05 20:00", price: 22, lat: 23.672, lng: 58.191, address: "Seeb, Muscat" },
-                { name: "Padel Pro Azaiba", sport: "Padel", available: true, nextAvailable: "", price: 28, lat: 23.596, lng: 58.364, address: "Azaiba, Muscat" },
-            ],
-            "Salalah": [
-                { name: "Salalah Sports Complex", sport: "Football, Basketball", available: true, nextAvailable: "", price: 20, lat: 17.016, lng: 54.093, address: "Salalah" },
-                { name: "Al Saada Stadium", sport: "Football", available: false, nextAvailable: "2026-06-10 17:00", price: 25, lat: 17.032, lng: 54.102, address: "Al Saada, Salalah" },
-                { name: "Dahariz Padel Court", sport: "Padel", available: true, nextAvailable: "", price: 22, lat: 17.003, lng: 54.132, address: "Dahariz, Salalah" },
-            ],
-            "Sohar": [
-                { name: "Sohar Sports Complex", sport: "Football", available: true, nextAvailable: "", price: 18, lat: 24.343, lng: 56.726, address: "Sohar" },
-                { name: "Sohar Padel Academy", sport: "Padel", available: false, nextAvailable: "2026-06-07 18:00", price: 24, lat: 24.361, lng: 56.731, address: "Sohar Industrial Area" },
-            ],
-            "Nizwa": [
-                { name: "Nizwa Sports Complex", sport: "Football", available: true, nextAvailable: "", price: 15, lat: 22.933, lng: 57.533, address: "Nizwa" },
-            ],
-            "Barka": [
-                { name: "Barka Sports Ground", sport: "Football", available: true, nextAvailable: "", price: 16, lat: 23.678, lng: 57.898, address: "Barka" },
-                { name: "Barka Padel Court", sport: "Padel", available: false, nextAvailable: "2026-06-08 19:00", price: 20, lat: 23.670, lng: 57.890, address: "Barka" },
-            ],
-            "Sur": [
-                { name: "Sur Sports Complex", sport: "Football", available: true, nextAvailable: "", price: 17, lat: 22.566, lng: 59.528, address: "Sur" },
-            ],
-            "Ibri": [
-                { name: "Ibri Football Field", sport: "Football", available: true, nextAvailable: "", price: 14, lat: 23.226, lng: 56.519, address: "Ibri" },
-            ],
-            "Rustaq": [
-                { name: "Rustaq Sports Complex", sport: "Football", available: false, nextAvailable: "2026-06-09 16:00", price: 16, lat: 23.390, lng: 57.424, address: "Rustaq" },
+                // Football courts
+                { name: "Sultan Qaboos Sports Complex", sport: "Football", available: true, nextAvailable: "", price: 20, lat: 23.588, lng: 58.408, address: "Bausher, Muscat", image: "football1.jpg", openingHours: "6:00 AM - 11:00 PM", capacity: "200 players", amenities: "Parking, Floodlights, Washrooms", rating: 4.8 },
+                { name: "Al Amrat Football Field", sport: "Football", available: false, nextAvailable: "2026-06-15 16:00", price: 18, lat: 23.473, lng: 58.503, address: "Al Amrat, Muscat", image: "football2.jpg", openingHours: "7:00 AM - 10:00 PM", capacity: "50 players", amenities: "Parking, Floodlights", rating: 4.5 },
+                { name: "Seeb Sports Stadium", sport: "Football", available: true, nextAvailable: "", price: 22, lat: 23.672, lng: 58.191, address: "Seeb, Muscat", image: "football3.jpg", openingHours: "5:00 AM - 10:00 PM", capacity: "500 players", amenities: "Parking, Floodlights, VIP Area", rating: 4.6 },
+                // Basketball courts
+                { name: "Bousher Indoor Basketball Court", sport: "Basketball", available: true, nextAvailable: "", price: 15, lat: 23.588, lng: 58.408, address: "Bousher, Muscat", image: "basketball1.jpg", openingHours: "8:00 AM - 9:00 PM", capacity: "30 players", amenities: "Parking, Indoor, Scoreboard", rating: 4.2 },
+                { name: "Sultan Qaboos Basketball Court", sport: "Basketball", available: false, nextAvailable: "2026-06-12 18:00", price: 20, lat: 23.588, lng: 58.408, address: "Bausher, Muscat", image: "basketball2.jpg", openingHours: "6:00 AM - 11:00 PM", capacity: "100 players", amenities: "Parking, Floodlights", rating: 4.5 },
+                { name: "Salalah Basketball Court", sport: "Basketball", available: true, nextAvailable: "", price: 18, lat: 17.016, lng: 54.093, address: "Salalah, Muscat", image: "basketball3.jpg", openingHours: "7:00 AM - 10:00 PM", capacity: "60 players", amenities: "Parking, Floodlights", rating: 4.3 },
+                // Padel courts
+                { name: "Padel Zone Al Mouj", sport: "Padel", available: true, nextAvailable: "", price: 25, lat: 23.623, lng: 58.456, address: "Al Mouj, Muscat", image: "padel1.jpg", openingHours: "6:00 AM - 11:00 PM", capacity: "20 players", amenities: "Parking, Floodlights, Coaching", rating: 4.9 },
+                { name: "Padel Pro Azaiba", sport: "Padel", available: false, nextAvailable: "2026-06-10 19:00", price: 28, lat: 23.596, lng: 58.364, address: "Azaiba, Muscat", image: "padel2.jpg", openingHours: "6:00 AM - 12:00 AM", capacity: "25 players", amenities: "Parking, Floodlights, Cafe", rating: 4.9 },
+                { name: "Dahariz Padel Court", sport: "Padel", available: true, nextAvailable: "", price: 22, lat: 17.003, lng: 54.132, address: "Dahariz, Muscat", image: "padel3.jpg", openingHours: "6:00 AM - 11:00 PM", capacity: "20 players", amenities: "Parking, Floodlights, AC", rating: 4.7 },
+                // Table Tennis courts
+                { name: "Oman Table Tennis Center", sport: "Table Tennis", available: true, nextAvailable: "", price: 10, lat: 23.586, lng: 58.385, address: "Al Khuwair, Muscat", image: "tabletennis1.jpg", openingHours: "9:00 AM - 10:00 PM", capacity: "15 players", amenities: "Parking, Equipment, AC", rating: 4.7 },
+                { name: "Al Khuwair Table Tennis", sport: "Table Tennis", available: false, nextAvailable: "2026-06-14 14:00", price: 12, lat: 23.586, lng: 58.385, address: "Al Khuwair, Muscat", image: "tabletennis2.jpg", openingHours: "9:00 AM - 9:00 PM", capacity: "10 players", amenities: "Parking, AC", rating: 4.3 },
+                { name: "Bousher Table Tennis Hall", sport: "Table Tennis", available: true, nextAvailable: "", price: 8, lat: 23.588, lng: 58.408, address: "Bousher, Muscat", image: "tabletennis3.jpg", openingHours: "8:00 AM - 8:00 PM", capacity: "20 players", amenities: "Parking, AC, Equipment", rating: 4.5 }
             ]
         };
 
@@ -672,8 +695,14 @@
             }
 
             document.getElementById('selectedCityName').innerText = city;
-            const courts = realCourtsData[city] || [];
-            const filteredCourts = courts.filter(court => court.sport.toLowerCase().includes(sport.toLowerCase()));
+
+            // Only Muscat has courts, other cities show "No courts available"
+            let filteredCourts = [];
+            if (city === "Muscat") {
+                const courts = realCourtsData["Muscat"] || [];
+                filteredCourts = courts.filter(court => court.sport.toLowerCase() === sport.toLowerCase());
+            }
+
             const container = document.getElementById('courtsList');
             const courtsContainer = document.getElementById('courtsListContainer');
 
@@ -690,14 +719,25 @@
                 const mapsUrl = `https://www.google.com/maps?q=${court.lat},${court.lng}`;
                 html += `
                     <div class="court-item ${!court.available ? 'unavailable' : ''}">
+                        <img class="court-image" src="${court.image}" alt="${court.name}" onerror="this.src='default.jpg'">
                         <div class="court-name">${court.name}</div>
                         <div class="court-details">
-                            <span>${court.address}</span>
+                            <span>📍 ${court.address}</span>
+                        </div>
+                        <div class="court-details">
+                            <span>🕐 ${court.openingHours}</span>
+                            <span>👥 ${court.capacity}</span>
+                        </div>
+                        <div class="court-details">
+                            <span class="rating">⭐ ${court.rating} / 5</span>
+                        </div>
+                        <div class="court-details">
+                            <span class="amenities">🏷️ ${court.amenities}</span>
                         </div>
                         <div class="court-details">
                             <span class="court-status ${statusClass}">${statusText}</span>
-                            <span>${court.price} OMR/hour</span>
-                            <span>${court.sport}</span>
+                            <span>💰 ${court.price} OMR/hour</span>
+                            <span>⚽ ${court.sport}</span>
                         </div>
                         ${!court.available ? `<div class="court-details">Available from: ${court.nextAvailable}</div>` : ''}
                         <div class="btn-group-court">
@@ -779,6 +819,19 @@
                 alert('Please select a date');
                 return;
             }
+
+            // Check for double booking
+            const conflictSnapshot = await db.collection('bookings')
+                .where('facility', '==', selectedCourt)
+                .where('date', '==', date)
+                .where('time', '==', time)
+                .get();
+
+            if (!conflictSnapshot.empty) {
+                alert('❌ This time slot is already booked. Please choose another date or time.');
+                return;
+            }
+
             const booking = {
                 userId: user.uid,
                 userEmail: user.email,
@@ -788,15 +841,17 @@
                 date: date,
                 time: time,
                 price: currentPrice,
-                createdAt: new Date().toISOString()
+                createdAt: new Date().toISOString(),
+                bookingReference: 'BOOK-' + Date.now() + '-' + Math.floor(Math.random() * 1000)
             };
+
             try {
                 await db.collection('bookings').add(booking);
-                alert(`Booking confirmed for ${selectedCourt} in ${city} on ${date} at ${time} - ${currentPrice} OMR`);
+                alert(`✅ Booking confirmed for ${selectedCourt} in ${city} on ${date} at ${time} - ${currentPrice} OMR\nReference: ${booking.bookingReference}`);
                 closeModal();
             } catch (error) {
                 console.error("Error adding booking: ", error);
-                alert('Error saving booking. Please try again.');
+                alert('❌ Error saving booking. Please try again.');
             }
         });
 
