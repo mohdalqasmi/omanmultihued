@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Oman Multi-Sport Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #002001;
+            color: white;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 50px;
+            background: transparent;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #a8ff78, #11998e);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 35px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 16px;
+            transition: 0.2s;
+            padding-bottom: 5px;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav-links a:hover {
+            color: #38ef7d;
+            border-bottom-color: #38ef7d;
+        }
+
+        .hero-section {
+            min-height: 35vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 8%;
+            background: linear-gradient(135deg, #003308, #002001);
+        }
+
+        .hero-content h1 {
+            font-size: 56px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #a8ff78);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 15px;
+        }
+
+        .hero-content p {
+            font-size: 18px;
+            color: #ddd;
+        }
+
+        .profile-container {
+            max-width: 800px;
+            margin: 60px auto;
+            padding: 0 50px;
+        }
+
+        .profile-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            border: 1px solid rgba(56, 239, 125, 0.2);
+            overflow: hidden;
+        }
+
+        .profile-header {
+            background: rgba(56, 239, 125, 0.1);
+            padding: 30px;
+            text-align: center;
+            border-bottom: 1px solid rgba(56, 239, 125, 0.2);
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 48px;
+            color: #002001;
+        }
+
+        .profile-header h2 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .profile-header p {
+            color: #a8ff78;
+            font-size: 14px;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            background: rgba(56, 239, 125, 0.05);
+            border-bottom: 1px solid rgba(56, 239, 125, 0.2);
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 800;
+            color: #a8ff78;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #ccc;
+        }
+
+        .profile-body {
+            padding: 30px;
+        }
+
+        .info-group {
+            margin-bottom: 25px;
+        }
+
+        .info-label {
+            font-size: 13px;
+            color: #a8ff78;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .info-value {
+            font-size: 18px;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(56, 239, 125, 0.2);
+            width: 100%;
+            color: white;
+        }
+
+        input.info-value {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(56, 239, 125, 0.3);
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            font-size: 16px;
+        }
+
+        input.info-value:focus {
+            outline: none;
+            border-color: #38ef7d;
+        }
+
+        .edit-btn,
+        .save-btn {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            border: none;
+            color: #002001;
+            font-weight: bold;
+            padding: 10px 25px;
+            border-radius: 40px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 10px;
+        }
+
+        .edit-btn:hover,
+        .save-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 12px #38ef7d;
+        }
+
+        .readonly-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px;
+            background: #001501;
+            border-top: 1px solid rgba(56, 239, 125, 0.2);
+            font-size: 14px;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 20px;
+                flex-direction: column;
+                gap: 15px;
+                position: relative;
+                background: #002001;
+            }
+
+            .nav-links {
+                gap: 20px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .hero-content h1 {
+                font-size: 36px;
+            }
+
+            .profile-container {
+                padding: 0 20px;
+            }
+
+            .stats-row {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="logo">Oman Multi-Sport Hub</div>
+        <div class="nav-links">
+            <a href="home.html">Home</a>
+            <a href="booking.html">Book a Court</a>
+            <a href="bookings.html">My Bookings</a>
+            <a href="profile.html">Profile</a>
+            <a href="#" id="logoutBtn">Logout</a>
+        </div>
+    </nav>
+
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1>My Profile</h1>
+            <p>View and manage your account information</p>
+        </div>
+    </section>
+
+    <div class="profile-container">
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar">👤</div>
+                <h2 id="userName">Loading...</h2>
+                <p id="userEmail">Loading...</p>
+                <p id="memberSince" style="font-size: 12px; margin-top: 10px;">Member since: Loading...</p>
+            </div>
+
+            <div class="stats-row" id="statsRow">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalBookings">-</div>
+                    <div class="stat-label">Total Bookings</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="totalSpent">-</div>
+                    <div class="stat-label">Total Spent (OMR)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="upcomingBookings">-</div>
+                    <div class="stat-label">Upcoming</div>
+                </div>
+            </div>
+
+            <div class="profile-body">
+                <div class="info-group">
+                    <label class="info-label">Full Name</label>
+                    <div class="info-value" id="fullName">Loading...</div>
+                </div>
+
+                <div class="info-group">
+                    <label class="info-label">Email Address</label>
+                    <div class="info-value" id="email">Loading...</div>
+                </div>
+
+                <div class="info-group">
+                    <label class="info-label">Phone Number</label>
+                    <div class="readonly-group">
+                        <input type="tel" class="info-value editable" id="phoneNumber" value="" placeholder="Not set"
+                            readonly>
+                        <button class="edit-btn" id="editPhoneBtn">Edit</button>
+                        <button class="save-btn" id="savePhoneBtn" style="display: none;">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>📍 Oman Multi-Sport Hub | 📧 info@omsport.om | 📞 +968 1234 5678</p>
+        <p style="margin-top: 10px;">Play better, train smarter, win confidently.</p>
+    </footer>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyC5ZiejgIHjAca8ZkhVH61xevHh7rkzd0o",
+            authDomain: "oman-sport-hub.firebaseapp.com",
+            projectId: "oman-sport-hub",
+            storageBucket: "oman-sport-hub.firebasestorage.app",
+            messagingSenderId: "733376705060",
+            appId: "1:733376705060:web:8dd4f5d5a2a490e34cdeb1",
+            measurementId: "G-XE9NHKCJYR"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        async function loadUserStats(userId) {
+            try {
+                const snapshot = await db.collection('bookings')
+                    .where('userId', '==', userId)
+                    .get();
+
+                const bookings = [];
+                snapshot.forEach(doc => bookings.push(doc.data()));
+
+                const totalBookings = bookings.length;
+                const totalSpent = bookings.reduce((sum, b) => sum + (b.price || 0), 0);
+
+                const today = new Date().toISOString().split('T')[0];
+                const upcoming = bookings.filter(b => b.date >= today).length;
+
+                document.getElementById('totalBookings').textContent = totalBookings;
+                document.getElementById('totalSpent').textContent = totalSpent.toFixed(2);
+                document.getElementById('upcomingBookings').textContent = upcoming;
+            } catch (error) {
+                console.error("Error loading stats:", error);
+            }
+        }
+
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            document.getElementById('userName').textContent = user.displayName || 'User';
+            document.getElementById('userEmail').textContent = user.email;
+            document.getElementById('fullName').textContent = user.displayName || 'Not set';
+            document.getElementById('email').textContent = user.email;
+
+            const creationDate = user.metadata.creationTime;
+            if (creationDate) {
+                const date = new Date(creationDate);
+                document.getElementById('memberSince').textContent = `Member since: ${date.toLocaleDateString()}`;
+            }
+
+            const userDoc = await db.collection('users').doc(user.uid).get();
+            if (userDoc.exists && userDoc.data().phone) {
+                document.getElementById('phoneNumber').value = userDoc.data().phone;
+            }
+
+            await loadUserStats(user.uid);
+        });
+
+        document.getElementById('editPhoneBtn').addEventListener('click', () => {
+            document.getElementById('phoneNumber').readOnly = false;
+            document.getElementById('phoneNumber').focus();
+            document.getElementById('editPhoneBtn').style.display = 'none';
+            document.getElementById('savePhoneBtn').style.display = 'inline-block';
+        });
+
+        document.getElementById('savePhoneBtn').addEventListener('click', async () => {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            const newPhone = document.getElementById('phoneNumber').value;
+
+            try {
+                await db.collection('users').doc(user.uid).set({
+                    phone: newPhone,
+                    email: user.email,
+                    name: user.displayName,
+                    updatedAt: new Date().toISOString()
+                }, { merge: true });
+
+                alert('✅ Phone number updated successfully!');
+                document.getElementById('phoneNumber').readOnly = true;
+                document.getElementById('editPhoneBtn').style.display = 'inline-block';
+                document.getElementById('savePhoneBtn').style.display = 'none';
+            } catch (error) {
+                console.error('Error saving phone:', error);
+                alert('❌ Error saving phone number. Please try again.');
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            auth.signOut().then(() => {
+                window.location.href = 'login.html';
+            });
+        });
+    </script>
+</body>
+
+</html>
